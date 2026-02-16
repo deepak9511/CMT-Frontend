@@ -1,0 +1,19 @@
+<h2>Admin Dashboard</h2>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>DOB</th>
+    <th>Gender</th>
+    <th>Action</th>
+  </tr>
+
+  <tr *ngFor="let p of patients">
+    <td>{{p.fullName}}</td>
+    <td>{{p.dob}}</td>
+    <td>{{p.gender}}</td>
+    <td>
+      <button (click)="edit(p.id)">Edit</button>
+    </td>
+  </tr>
+</table>

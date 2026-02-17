@@ -2,7 +2,7 @@
   <div class="card">
 
     <!-- HEADER -->
-    <h2>{{ editId ? 'Edit Patient' : 'Add Patient' }}</h2>
+    <h2>Add Patient</h2>
 
     <!-- PROGRESS BAR -->
     <div class="progress-container">
@@ -21,15 +21,15 @@
       </div>
     </div>
 
-    <!-- TAB NAVIGATION -->
+    <!-- TABS -->
     <div class="tabs">
-      <div class="tab" [class.active]="step === 0" (click)="step = 0">Demographics</div>
-      <div class="tab" [class.active]="step === 1" (click)="step = 1">Diagnosis</div>
-      <div class="tab" [class.active]="step === 2" (click)="step = 2">Genetic</div>
-      <div class="tab" [class.active]="step === 3" (click)="step = 3">Family</div>
-      <div class="tab" [class.active]="step === 4" (click)="step = 4">Symptoms</div>
-      <div class="tab" [class.active]="step === 5" (click)="step = 5">Functional</div>
-      <div class="tab" [class.active]="step === 6" (click)="step = 6">Treatment</div>
+      <div class="tab" [class.active]="step === 0" (click)="goToStep(0)">Demographics</div>
+      <div class="tab" [class.active]="step === 1" (click)="goToStep(1)">Diagnosis</div>
+      <div class="tab" [class.active]="step === 2" (click)="goToStep(2)">Genetic</div>
+      <div class="tab" [class.active]="step === 3" (click)="goToStep(3)">Family</div>
+      <div class="tab" [class.active]="step === 4" (click)="goToStep(4)">Symptoms</div>
+      <div class="tab" [class.active]="step === 5" (click)="goToStep(5)">Functional</div>
+      <div class="tab" [class.active]="step === 6" (click)="goToStep(6)">Treatment</div>
     </div>
 
     <!-- FORM -->
@@ -40,52 +40,69 @@
 
         <div class="form-group">
           <label>Full Name</label>
-          <input type="text" formControlName="fullName">
+          <input type="text" formControlName="fullName"
+                 [class.invalid]="isInvalid('fullName')">
+          <div class="error" *ngIf="isInvalid('fullName')">Required</div>
         </div>
 
         <div class="row">
           <div class="col-6 form-group">
             <label>Date of Birth</label>
-            <input type="date" formControlName="dob">
+            <input type="date" formControlName="dob"
+                   [class.invalid]="isInvalid('dob')">
+            <div class="error" *ngIf="isInvalid('dob')">Required</div>
           </div>
 
           <div class="col-6 form-group">
             <label>Gender</label>
-            <select formControlName="gender">
+            <select formControlName="gender"
+                    [class.invalid]="isInvalid('gender')">
               <option value="">Select</option>
               <option>Male</option>
               <option>Female</option>
               <option>Other</option>
             </select>
+            <div class="error" *ngIf="isInvalid('gender')">Required</div>
           </div>
         </div>
 
         <div class="form-group">
           <label>Permanent Address</label>
-          <textarea rows="2" formControlName="permanentAddress"></textarea>
+          <textarea rows="2"
+                    formControlName="permanentAddress"
+                    [class.invalid]="isInvalid('permanentAddress')"></textarea>
+          <div class="error" *ngIf="isInvalid('permanentAddress')">Required</div>
         </div>
 
         <div class="row">
           <div class="col-6 form-group">
             <label>Ethnicity</label>
-            <input type="text" formControlName="ethnicity">
+            <input type="text" formControlName="ethnicity"
+                   [class.invalid]="isInvalid('ethnicity')">
+            <div class="error" *ngIf="isInvalid('ethnicity')">Required</div>
           </div>
 
           <div class="col-6 form-group">
             <label>Marital Status</label>
-            <input type="text" formControlName="maritalStatus">
+            <input type="text" formControlName="maritalStatus"
+                   [class.invalid]="isInvalid('maritalStatus')">
+            <div class="error" *ngIf="isInvalid('maritalStatus')">Required</div>
           </div>
         </div>
 
         <div class="row">
           <div class="col-6 form-group">
             <label>Height (cm)</label>
-            <input type="number" formControlName="height">
+            <input type="number" formControlName="height"
+                   [class.invalid]="isInvalid('height')">
+            <div class="error" *ngIf="isInvalid('height')">Required</div>
           </div>
 
           <div class="col-6 form-group">
             <label>Weight (kg)</label>
-            <input type="number" formControlName="weight">
+            <input type="number" formControlName="weight"
+                   [class.invalid]="isInvalid('weight')">
+            <div class="error" *ngIf="isInvalid('weight')">Required</div>
           </div>
         </div>
 
@@ -96,41 +113,51 @@
 
         <div class="form-group">
           <label>Age when symptoms noticed</label>
-          <input type="number" formControlName="symptomAge">
+          <input type="number" formControlName="symptomAge"
+                 [class.invalid]="isInvalid('symptomAge')">
+          <div class="error" *ngIf="isInvalid('symptomAge')">Required</div>
         </div>
 
         <div class="form-group">
           <label>First Symptoms</label>
-          <select multiple formControlName="firstSymptoms">
+          <select multiple formControlName="firstSymptoms"
+                  [class.invalid]="isInvalid('firstSymptoms')">
             <option *ngFor="let s of firstSymptomsOptions" [value]="s">
               {{ s }}
             </option>
           </select>
+          <div class="error" *ngIf="isInvalid('firstSymptoms')">Required</div>
         </div>
 
         <div class="form-group">
           <label>Age at Diagnosis</label>
-          <input type="number" formControlName="diagnosisAge">
+          <input type="number" formControlName="diagnosisAge"
+                 [class.invalid]="isInvalid('diagnosisAge')">
+          <div class="error" *ngIf="isInvalid('diagnosisAge')">Required</div>
         </div>
 
         <div class="form-group">
           <label>Diagnosed By</label>
-          <select formControlName="diagnosedBy">
+          <select formControlName="diagnosedBy"
+                  [class.invalid]="isInvalid('diagnosedBy')">
             <option value="">Select</option>
             <option *ngFor="let d of diagnosedByOptions" [value]="d">
               {{ d }}
             </option>
           </select>
+          <div class="error" *ngIf="isInvalid('diagnosedBy')">Required</div>
         </div>
 
         <div class="form-group">
           <label>Diagnostic Method</label>
-          <select formControlName="diagnosticMethod">
+          <select formControlName="diagnosticMethod"
+                  [class.invalid]="isInvalid('diagnosticMethod')">
             <option value="">Select</option>
             <option *ngFor="let d of diagnosisMethodOptions" [value]="d">
               {{ d }}
             </option>
           </select>
+          <div class="error" *ngIf="isInvalid('diagnosticMethod')">Required</div>
         </div>
 
       </div>
@@ -140,22 +167,28 @@
 
         <div class="form-group">
           <label>Genetic Testing Done?</label>
-          <select formControlName="geneticTesting">
+          <select formControlName="geneticTesting"
+                  [class.invalid]="isInvalid('geneticTesting')">
             <option value="">Select</option>
             <option *ngFor="let g of yesNoPendingOptions" [value]="g">
               {{ g }}
             </option>
           </select>
+          <div class="error" *ngIf="isInvalid('geneticTesting')">Required</div>
         </div>
 
         <div class="form-group">
           <label>Gene Mutation Identified</label>
-          <textarea rows="2" formControlName="mutation"></textarea>
+          <textarea rows="2"
+                    formControlName="mutation"
+                    [class.invalid]="isInvalid('mutation')"></textarea>
+          <!-- <div class="error" *ngIf="isInvalid('mutation')">Required</div> -->
         </div>
 
         <div class="form-group">
           <label>Upload Genetic Report (PDF)</label>
           <input type="file" (change)="onFileChange($event)">
+          <!-- <div class="error" *ngIf="isInvalid('report')">Required</div> -->
         </div>
 
       </div>
@@ -165,31 +198,37 @@
 
         <div class="form-group">
           <label>Family History of CMT?</label>
-          <select formControlName="familyHistory">
+          <select formControlName="familyHistory"
+                  [class.invalid]="isInvalid('familyHistory')">
             <option value="">Select</option>
             <option *ngFor="let y of yesNoOptions" [value]="y">
               {{ y }}
             </option>
           </select>
+          <div class="error" *ngIf="isInvalid('familyHistory')">Required</div>
         </div>
 
         <div class="form-group">
           <label>Affected Relatives</label>
-          <select multiple formControlName="affectedRelatives">
+          <select multiple formControlName="affectedRelatives"
+                  [class.invalid]="isInvalid('affectedRelatives')">
             <option *ngFor="let r of relationshipOptions" [value]="r">
               {{ r }}
             </option>
           </select>
+          <!-- <div class="error" *ngIf="isInvalid('affectedRelatives')">Required</div> -->
         </div>
 
         <div class="form-group">
           <label>Consanguinity</label>
-          <select formControlName="consanguinity">
+          <select formControlName="consanguinity"
+                  [class.invalid]="isInvalid('consanguinity')">
             <option value="">Select</option>
             <option *ngFor="let c of consanguinityOptions" [value]="c">
               {{ c }}
             </option>
           </select>
+          <div class="error" *ngIf="isInvalid('consanguinity')">Required</div>
         </div>
 
       </div>
@@ -199,17 +238,23 @@
 
         <div class="form-group">
           <label>Lower Limb Symptoms</label>
-          <textarea rows="2" formControlName="lowerLimb"></textarea>
+          <textarea rows="2" formControlName="lowerLimb"
+                    [class.invalid]="isInvalid('lowerLimb')"></textarea>
+          <div class="error" *ngIf="isInvalid('lowerLimb')">Required</div>
         </div>
 
         <div class="form-group">
           <label>Upper Limb Symptoms</label>
-          <textarea rows="2" formControlName="upperLimb"></textarea>
+          <textarea rows="2" formControlName="upperLimb"
+                    [class.invalid]="isInvalid('upperLimb')"></textarea>
+          <div class="error" *ngIf="isInvalid('upperLimb')">Required</div>
         </div>
 
         <div class="form-group">
           <label>Sensory Symptoms</label>
-          <textarea rows="2" formControlName="sensory"></textarea>
+          <textarea rows="2" formControlName="sensory"
+                    [class.invalid]="isInvalid('sensory')"></textarea>
+          <div class="error" *ngIf="isInvalid('sensory')">Required</div>
         </div>
 
       </div>
@@ -219,27 +264,33 @@
 
         <div class="form-group">
           <label>Mobility Status</label>
-          <select formControlName="mobility">
+          <select formControlName="mobility"
+                  [class.invalid]="isInvalid('mobility')">
             <option value="">Select</option>
             <option *ngFor="let m of mobilityOptions" [value]="m">
               {{ m }}
             </option>
           </select>
+          <div class="error" *ngIf="isInvalid('mobility')">Required</div>
         </div>
 
         <div class="form-group">
           <label>Walking Distance</label>
-          <select formControlName="walkingDistance">
+          <select formControlName="walkingDistance"
+                  [class.invalid]="isInvalid('walkingDistance')">
             <option value="">Select</option>
             <option *ngFor="let w of walkingDistanceOptions" [value]="w">
               {{ w }}
             </option>
           </select>
+          <div class="error" *ngIf="isInvalid('walkingDistance')">Required</div>
         </div>
 
         <div class="form-group">
           <label>Falls in Last Year</label>
-          <textarea rows="2" formControlName="falls"></textarea>
+          <textarea rows="2" formControlName="falls"
+                    [class.invalid]="isInvalid('falls')"></textarea>
+          <!-- <div class="error" *ngIf="isInvalid('falls')">Required</div> -->
         </div>
 
       </div>
@@ -249,21 +300,27 @@
 
         <div class="form-group">
           <label>Treatment Details</label>
-          <select multiple formControlName="treatments">
+          <select multiple formControlName="treatments"
+                  [class.invalid]="isInvalid('treatments')">
             <option *ngFor="let t of treatmentOptions" [value]="t">
               {{ t }}
             </option>
           </select>
+          <div class="error" *ngIf="isInvalid('treatments')">Required</div>
         </div>
 
         <div class="form-group">
           <label>Clinical Trials Participation</label>
-          <textarea rows="2" formControlName="clinicalTrials"></textarea>
+          <textarea rows="2" formControlName="clinicalTrials"
+                    [class.invalid]="isInvalid('clinicalTrials')"></textarea>
+          <!-- <div class="error" *ngIf="isInvalid('clinicalTrials')">Required</div> -->
         </div>
 
         <div class="form-group">
           <label>Access to Care Issues</label>
-          <textarea rows="2" formControlName="accessToCare"></textarea>
+          <textarea rows="2" formControlName="accessToCare"
+                    [class.invalid]="isInvalid('accessToCare')"></textarea>
+          <div class="error" *ngIf="isInvalid('accessToCare')">Required</div>
         </div>
 
       </div>
@@ -272,21 +329,17 @@
 
     <!-- BUTTONS -->
     <div class="buttons">
-      <button class="btn btn-secondary"
-              (click)="prev()"
-              [disabled]="step === 0">
-        Back
-      </button>
+      <button (click)="prev()" [disabled]="step === 0">Back</button>
 
-      <button class="btn btn-primary"
-              (click)="next()"
-              *ngIf="step < 6">
+      <button (click)="next()"
+              *ngIf="step < 6"
+              [disabled]="!isCurrentStepValid()">
         Next
       </button>
 
-      <button class="btn btn-success"
-              (click)="submit()"
-              *ngIf="step === 6">
+      <button (click)="submit()"
+              *ngIf="step === 6"
+              [disabled]="!isCurrentStepValid()">
         Submit
       </button>
     </div>

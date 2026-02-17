@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PatientService } from '../../core/services/patient.service';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { couldStartTrivia } from 'typescript';
 
 @Component({
-  standalone: true,
   selector: 'app-patient-form',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './patient-form.html',
   styleUrls: ['./patient-form.scss']
@@ -14,10 +13,7 @@ import { PatientService } from '../../core/services/patient.service';
 export class PatientFormComponent {
 
   step = 0;
-  editId: any = null;
   form!: FormGroup;
-
-  /* ================= LOV OPTIONS ================= */
 
   firstSymptomsOptions = [
     'Tripping / Falls',
@@ -26,7 +22,7 @@ export class PatientFormComponent {
     'Numbness in Feet',
     'Hand Weakness',
     'Delayed Walking',
-    'Scoliosis'
+    'Scoliosis' 
   ];
 
   diagnosedByOptions = [
@@ -93,130 +89,123 @@ export class PatientFormComponent {
     'Experimental Therapy'
   ];
 
-  /* ================= CONSTRUCTOR ================= */
-
-  constructor(
-    private fb: FormBuilder,
-    private service: PatientService,
-    private route: ActivatedRoute,
-    private router: Router
-  ) {
-
+  constructor(private fb: FormBuilder) {
     this.initForm();
-
-    this.editId = this.route.snapshot.paramMap.get('id');
-
-    if (this.editId) {
-      this.service.getById(+this.editId).subscribe((res: any) => {
-        this.form.patchValue(res);
-      });
-    }
   }
-
-  /* ================= INIT FORM ================= */
 
   initForm() {
     this.form = this.fb.group({
 
-      // DEMOGRAPHICS
-      fullName: [''],
-      dob: [''],
-      gender: [''],
-      permanentAddress: [''],
-      ethnicity: [''],
-      maritalStatus: [''],
-      height: [''],
-      weight: [''],
+      /* STEP 1 */
+      fullName: ['', Validators.required],
+      dob: ['', Validators.required],
+      gender: ['', Validators.required],
+      permanentAddress: ['', Validators.required],
+      ethnicity: ['', Validators.required],
+      maritalStatus: ['', Validators.required],
+      height: ['', Validators.required],
+      weight: ['', Validators.required],
 
-      // DIAGNOSIS
-      symptomAge: [''],
-      firstSymptoms: [[]],
-      diagnosisAge: [''],
-      diagnosedBy: [''],
-      diagnosticMethod: [''],
+      /* STEP 2 */
+      symptomAge: ['', Validators.required],
+      firstSymptoms: [[], Validators.required],
+      diagnosisAge: ['', Validators.required],
+      diagnosedBy: ['', Validators.required],
+      diagnosticMethod: ['', Validators.required],
 
-      // GENETIC
-      geneticTesting: [''],
+      /* STEP 3 */
+      geneticTesting: ['', Validators.required],
       mutation: [''],
       report: [null],
 
-      // FAMILY
-      familyHistory: [''],
+      /* STEP 4 */
+      familyHistory: ['', Validators.required],
       affectedRelatives: [[]],
-      consanguinity: [''],
+      consanguinity: ['', Validators.required],
 
-      // SYMPTOMS
-      lowerLimb: [''],
-      upperLimb: [''],
-      sensory: [''],
+      /* STEP 5 */
+      lowerLimb: ['', Validators.required],
+      upperLimb: ['', Validators.required],
+      sensory: ['', Validators.required],
 
-      // FUNCTIONAL
-      mobility: [''],
-      walkingDistance: [''],
+      /* STEP 6 */
+      mobility: ['', Validators.required],
+      walkingDistance: ['', Validators.required],
       falls: [''],
 
-      // TREATMENT
-      treatments: [[]],
+      /* STEP 7 */
+      treatments: [[], Validators.required],
       clinicalTrials: [''],
-      accessToCare: ['']
-
+      accessToCare: ['', Validators.required]
     });
   }
 
-  /* ================= STEP NAVIGATION ================= */
+  /* STEP FIELD MAP */
+  stepFields: any = {
+    0: ['fullName','dob','gender','permanentAddress','ethnicity','maritalStatus','height','weight'],
+    1: ['symptomAge','firstSymptoms','diagnosisAge','diagnosedBy','diagnosticMethod'],
+    2: ['geneticTesting','mutation','report'],
+    3: ['familyHistory','affectedRelatives','consanguinity'],
+    4: ['lowerLimb','upperLimb','sensory'],
+    5: ['mobility','walkingDistance','falls'],
+    6: ['treatments','clinicalTrials','accessToCare']
+  };
+
+  isCurrentStepValid(): boolean {
+    return this.stepFields[this.step].every((field: string) => {
+      return this.form.get(field)?.valid;
+    });
+  }
+
+  markStepTouched() {
+    this.stepFields[this.step].forEach((field: string) => {
+      this.form.get(field)?.markAsTouched();
+    });
+  }
 
   next() {
-    if (this.step < 6) this.step++;
+    if (this.isCurrentStepValid()) {
+      this.step++;
+    } else {
+      this.markStepTouched();
+    }
   }
 
   prev() {
     if (this.step > 0) this.step--;
   }
 
-  get progress() {
-    return ((this.step + 1) / 7) * 100;
+  goToStep(index: number) {
+    if (index <= this.step || this.isCurrentStepValid()) {
+      this.step = index;
+    }
   }
-
-  /* ================= FILE UPLOAD ================= */
 
   onFileChange(event: any) {
     const file = event.target.files[0];
     if (file) {
       this.form.patchValue({ report: file });
+      this.form.get('report')?.updateValueAndValidity();
     }
   }
 
-  /* ================= SUBMIT ================= */
-
   submit() {
-
-    const formData = new FormData();
-    Object.keys(this.form.value).forEach(key => {
-
-      const value = this.form.value[key];
-
-      // Handle arrays (multi-select)
-      if (Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value));
-      } else {
-        formData.append(key, value);
-      }
-    });
-
-    if (this.editId) {
-      this.service.update(this.editId, formData).subscribe(() => {
-        alert('Updated Successfully');
-        this.router.navigate(['/admin']);
-      });
-    } else {
+    if (this.form.invalid) {
       console.log(this.form);
-    console.log(formData);
-      this.service.create(formData).subscribe(() => {
-        alert('Created Successfully');
-        this.form.reset();
-        this.step = 0;
-      });
+      this.markStepTouched();
+      return;
     }
+    console.log(this.form.value);
+    alert('Form Submitted Successfully!');
+  }
+
+  isInvalid(controlName: string) {
+    const control = this.form.get(controlName);
+    return control?.invalid && control?.touched;
+  }
+
+  get progress() {
+    return ((this.step + 1) / 7) * 100;
   }
 
 }

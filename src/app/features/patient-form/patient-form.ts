@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { couldStartTrivia } from 'typescript';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-patient-form',
@@ -14,6 +15,8 @@ export class PatientFormComponent {
 
   step = 0;
   form!: FormGroup;
+  selectedFile: File | null = null;
+
 
   firstSymptomsOptions = [
     'Tripping / Falls',
@@ -89,7 +92,7 @@ export class PatientFormComponent {
     'Experimental Therapy'
   ];
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private http: HttpClient ) {
     this.initForm();
   }
 
@@ -184,20 +187,46 @@ export class PatientFormComponent {
   onFileChange(event: any) {
     const file = event.target.files[0];
     if (file) {
+      this.selectedFile = event.target.files[0];
       this.form.patchValue({ report: file });
       this.form.get('report')?.updateValueAndValidity();
     }
   }
 
   submit() {
-    if (this.form.invalid) {
-      console.log(this.form);
-      this.markStepTouched();
-      return;
-    }
-    console.log(this.form.value);
-    alert('Form Submitted Successfully!');
+
+  if (this.form.invalid) {
+    this.form.markAllAsTouched();
+    return;
   }
+
+  const formData = new FormData();
+
+  // Append JSON data
+  formData.append('data', JSON.stringify(this.form.value));
+
+  // Append file only if selected
+  if (this.selectedFile) {
+    formData.append('geneticReport', this.selectedFile);
+  }
+console.log(formData);
+  this.http.post(
+    'https://darkslateblue-sparrow-644217.hostingersite.com/app/api/insert-patient.php',
+    formData
+  ).subscribe({
+    next: (res) => {
+      console.log(res);
+      alert('Form Submitted Successfully!');
+      this.form.reset();
+      this.selectedFile = null;
+    },
+    error: (err) => {
+      console.error(err);
+      alert('Something went wrong!');
+    }
+  });
+
+}
 
   isInvalid(controlName: string) {
     const control = this.form.get(controlName);
